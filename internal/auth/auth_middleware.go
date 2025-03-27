@@ -33,7 +33,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		// username에 대한 context 설정
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			r = r.WithContext(WithUserContext(r.Context(), claims["username"].(string)))
+			r = r.WithContext(WithUserContext(r.Context(), claims["email"].(string)))
 		}
 
 		// 검증 성공 시, 다음 핸들러 실행

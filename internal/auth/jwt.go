@@ -8,14 +8,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateToken(username string) (string, error) {
+func GenerateToken(email string) (string, error) {
 	// 서버 키 가져오기
 	secretKey := []byte(os.Getenv("JWT_SECRET"))
+	expirationTime := time.Now().Add(15 * time.Minute)
 
 	// 클레임 생성(유저이름 / 만료시간)
 	claims := jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email": email,
+		"exp":   expirationTime.Unix(),
 	}
 
 	// 서버 키와 클레임을 이용하여 JWT 생성(서명은 없음) -> 헤더(Header).페이로드(Payload).(서명 없음)
@@ -23,6 +24,24 @@ func GenerateToken(username string) (string, error) {
 
 	// 서버키를 이용하여 서명까지 한 토큰을 리턴
 	return token.SignedString(secretKey)
+}
+
+func GenerateRefreshToken(email string) (string, time.Time, error) {
+	// 서버 키 가져오기
+	secretKey := []byte(os.Getenv("JWT_SECRET"))
+	expirationTime := time.Now().Add(7 * 24 * time.Hour) // 7일 후 만료
+
+	claims := jwt.MapClaims{
+		"email": email,
+		"exp":   expirationTime.Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return signedToken, expirationTime, nil
 }
 
 // 1️⃣ 클라이언트가 보낸 JWT를 받음

@@ -67,7 +67,7 @@ func loginHandler(database *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := auth.GenerateToken(user.Username)
+		token, err := auth.GenerateToken(user.Email)
 		if err != nil {
 			http.Error(w, `{"error": "토큰 생성 실패"}`, http.StatusInternalServerError)
 			return
@@ -98,6 +98,7 @@ func main() {
 	http.HandleFunc("/register", RegisterHandler(database))
 	http.HandleFunc("/login", loginHandler(database))
 	http.HandleFunc("/profile", auth.AuthMiddleware(handlers.ProfileHandler))
+	http.HandleFunc("/refresh", handlers.RefreshTokenHandler(database))
 
 	fmt.Println("🚀 서버 실행 중: http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
