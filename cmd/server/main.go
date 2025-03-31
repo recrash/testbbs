@@ -28,6 +28,7 @@ func main() {
 	http.HandleFunc("/login", handlers.LoginHandler(database))
 	http.HandleFunc("/profile", auth.AuthMiddleware(handlers.ProfileHandler))
 	http.HandleFunc("/refresh", handlers.RefreshTokenHandler(database))
+	http.HandleFunc("/logout", handlers.LogOutHandler(database))
 
 	fmt.Println("🚀 서버 실행 중: http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
