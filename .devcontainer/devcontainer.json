@@ -1,6 +1,6 @@
 {
 	"name": "Node.js & TypeScript",	
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",	
 	"features": {
 		"ghcr.io/devcontainers/features/git-lfs:1": {
 			"autoPull": true,
@@ -13,6 +13,7 @@
 			"version": "13"
 		}
 	},
+	"forwardPorts": [5173],
 	"customizations": {
         "vscode": {
             "extensions": [
@@ -23,16 +24,15 @@
                 "DavidAnson.vscode-markdownlint",
                 "Vue.volar",
                 "ms-azuretools.vscode-docker",
-                "vitest.explorer",
-                "cweijan.vscode-database-client2",
+				"postman.postman-for-vscode",
+                "vitest.explorer",                
                 "GitHub.vscode-pull-request-github",
-                "Azurite.azurite",
-                "GitHub.copilot",
-                "github.copilot-chat",
+                "Azurite.azurite",                                
                 "eamodio.gitlens",
                 "VisualStudioExptTeam.vscodeintellicode",
                 "visualstudioexptteam.intellicode-api-usage-examples",                                
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+				"cweijan.vscode-postgresql-client2"
             ]
         }
     }
