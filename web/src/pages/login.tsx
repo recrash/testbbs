@@ -11,7 +11,9 @@ function Login() {
         try {
             const response = await axios.post("http://localhost:8081/login", {
                 email,
-                password
+                password,
+            }, {
+                withCredentials: true,
             });
             console.log("로그인 성공:", response.data);
         } catch (error) {

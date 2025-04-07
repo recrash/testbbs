@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"testbbs/internal/auth"
 	"testbbs/internal/db"
@@ -54,10 +53,13 @@ func LoginHandler(database *sql.DB) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Authorization", "Bearer "+accessToken) // 헤더에 JWT 포함
-		json.NewEncoder(w).Encode(map[string]string{
-			"message":       fmt.Sprintf("로그인 성공! 환영합니다. %s!", user.Username),
-			"access_token":  accessToken,
-			"refresh_token": refreshToken,
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    accessToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
 		})
+
 	}
 }
