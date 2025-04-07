@@ -24,12 +24,28 @@ func main() {
 
 	defer database.Close()
 
-	http.HandleFunc("/register", handlers.RegisterHandler(database))
-	http.HandleFunc("/login", handlers.LoginHandler(database))
-	http.HandleFunc("/profile", auth.AuthMiddleware(handlers.ProfileHandler))
-	http.HandleFunc("/refresh", handlers.RefreshTokenHandler(database))
-	http.HandleFunc("/logout", handlers.LogOutHandler(database))
+	http.Handle("/register", withCORS(handlers.RegisterHandler(database)))
+	http.Handle("/login", withCORS(handlers.LoginHandler(database)))
+	http.Handle("/profile", withCORS(auth.AuthMiddleware(handlers.ProfileHandler)))
+	http.Handle("/refresh", withCORS(handlers.RefreshTokenHandler(database)))
+	http.Handle("/logout", withCORS(handlers.LogOutHandler(database)))
 
-	fmt.Println("🚀 서버 실행 중: http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("🚀 서버 실행 중: http://localhost:8081")
+	http.ListenAndServe(":8081", nil)
+}
+
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, UPDATE, DELETE, OPTIONS")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
