@@ -1,48 +1,66 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Box } from "@mui/material";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
 
-function Login() {
+
+function Register() {
     const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        let response = null
+
         try {
-            const response = await axios.post("http://localhost:8081/login", {
+                response = await axios.post("http://localhost:8081/register", {
+                username,
                 email,
                 password,
             }, {
                 withCredentials: true,
             });
-            console.log("로그인 성공:", response.data);
+            console.log("회원가입 성공!", response.data);
+            alert("정상적으로 회원가입이 되었습니다.");
+            navigate("/login");
         } catch (error) {
             if(axios.isAxiosError(error) && error.response) {
                 alert(error.response.data.error);
             } else {
                 alert("알 수 없는 에러가 발생하였습니다.");
             }
-            console.error("로그인 실패:", error);
+            console.log("회원가입 실패:", error);
         }
     }
 
     return (
         <Box
         sx={{
-          width: 300,
-          margin: "100px auto",
-          padding: 3,
-          border: "1px solid #ccc",
-          borderRadius: 2,
-          boxShadow: 3,
+            width: 300,
+            margin: "100px auto",
+            padding: 3,
+            border: "1px solid #ccc",
+            borderRadius: 2,
+            boxShadow: 3,
         }}
         >
             <Typography variant="h5" align="center" gutterBottom>
-            로그인
+            회원가입
             </Typography>
 
             <form onSubmit={handleSubmit}>
+                <TextField
+                    fullWidth
+                    label="이름 또는 별명"
+                    variant="outlined"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    margin="normal"
+                />
                 <TextField
                     fullWidth
                     label="이메일"
@@ -52,7 +70,6 @@ function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     margin="normal"
                 />
-
                 <TextField
                     fullWidth
                     label="비밀번호"
@@ -61,11 +78,8 @@ function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     margin="normal"
-                />       
-                <Box sx={{ textAlign: "right", mt: 1 }}>
-                    <Link to="/register">회원가입</Link>
-                </Box>
-                         
+                />
+
                 <Button
                     type="submit"
                     fullWidth
@@ -73,12 +87,11 @@ function Login() {
                     color="primary"
                     sx={{ mt:2 }}
                 >
-                로그인
-                </Button>            
+                확인
+                </Button>
             </form>
-        </Box>
-
+        </Box>        
     )
 }
 
-export default Login;
+export default Register;
