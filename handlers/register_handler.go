@@ -11,7 +11,7 @@ import (
 
 func RegisterHandler(database *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req models.ResgisterRequest
+		var req models.RegisterRequest
 		var user *models.User
 
 		err := json.NewDecoder(r.Body).Decode(&req)
