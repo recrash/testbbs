@@ -7,6 +7,7 @@ import (
 	"testbbs/internal/auth"
 	"testbbs/internal/db"
 	"testbbs/internal/models"
+	"testbbs/internal/util"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -18,21 +19,21 @@ func LoginHandler(database *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			http.Error(w, `{"error": "잘못된 요청 형식"}`, http.StatusBadRequest)
+			util.SendErrorResponse(w, http.StatusBadRequest, "잘못된 요청 형식")
 			return
 		}
 
 		user, err := db.GetUserByEmail(database, req.Email)
 
 		if err != nil || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)) != nil {
-			http.Error(w, `{"error": "이메일 또는 비밀번호가 잘못되었습니다."}`, http.StatusUnauthorized)
+			util.SendErrorResponse(w, http.StatusUnauthorized, "이메일 또는 비밀번호가 잘못되었습니다.")
 			return
 		}
 
 		// 액세스 토큰 발급
 		accessToken, err := auth.GenerateToken(user.Email)
 		if err != nil {
-			http.Error(w, `{"error": "토큰 생성 실패"}`, http.StatusInternalServerError)
+			util.SendErrorResponse(w, http.StatusInternalServerError, "토큰 생성 실패")
 			return
 		}
 
@@ -42,24 +43,25 @@ func LoginHandler(database *sql.DB) http.HandlerFunc {
 			var expirationTime time.Time
 			refreshToken, expirationTime, err = auth.GenerateRefreshToken(user.Email)
 			if err != nil {
-				http.Error(w, `{"error": "리프레시 토큰 생성 실패"}`, http.StatusInternalServerError)
+				util.SendErrorResponse(w, http.StatusInternalServerError, "리프레시 토큰 생성 실패")
 				return
 			}
 			err = db.InsertRefreshTokens(database, user.Email, refreshToken, expirationTime)
 			if err != nil {
-				http.Error(w, `{"error": "리프레시 토큰 DB Insert 실패"}`, http.StatusInternalServerError)
+				util.SendErrorResponse(w, http.StatusInternalServerError, "리프레시 토큰 DB Insert 실패")
 				return
 			}
 		}
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Authorization", "Bearer "+accessToken) // 헤더에 JWT 포함
-		http.SetCookie(w, &http.Cookie{
-			Name:     "access_token",
-			Value:    accessToken,
-			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-		})
+
+		responseData := map[string]interface{}{
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+			"user": map[string]string{
+				"email":    user.Email,
+				"username": user.Username,
+			},
+		}
+		util.SendSuccessResponse(w, http.StatusOK, "로그인 성공!", responseData)
 
 	}
 }
