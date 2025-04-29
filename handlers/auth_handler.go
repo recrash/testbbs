@@ -58,8 +58,12 @@ func RefreshTokenHandler(database *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		json.NewEncoder(w).Encode(map[string]string{
-			"access_token": accessToken,
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    accessToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
 		})
 
 	}

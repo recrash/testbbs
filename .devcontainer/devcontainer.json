@@ -13,7 +13,7 @@
 			"version": "13"
 		}
 	},
-	"forwardPorts": [5173],
+	"forwardPorts": [5173, 8081],	
 	"customizations": {
         "vscode": {
             "extensions": [
@@ -36,9 +36,7 @@
             ]
         }
     }
-
 	
-
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
