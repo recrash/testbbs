@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testbbs/internal/db"
 	"testbbs/internal/models"
+	"testbbs/internal/util"
 )
 
 func RegisterHandler(database *sql.DB) http.HandlerFunc {
@@ -16,28 +17,28 @@ func RegisterHandler(database *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			http.Error(w, `{"error": "잘못된 요청 형식"}`, http.StatusBadRequest)
+			util.SendErrorResponse(w, http.StatusBadRequest, "잘못된 요청 형식")
 			return
 		}
 
 		if req.Username == "" || req.Email == "" || req.Password == "" {
-			http.Error(w, `{"error": "모든 필드를 입력하세요."}`, http.StatusBadRequest)
+			util.SendErrorResponse(w, http.StatusBadRequest, "모든 필드를 입력하세요.")
 			return
 		}
 
 		user, _ = db.GetUserByEmail(database, req.Email)
 		if user.Email == req.Email {
-			http.Error(w, `{"error": "이미 가입된 이메일입니다."}`, http.StatusInternalServerError)
+			util.SendErrorResponse(w, http.StatusInternalServerError, "이미 가입된 이메일주소입니다.")
 			return
 		}
 
 		err = db.CreateUser(database, req.Username, req.Email, req.Password)
 		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error": "회원가입 실패: %s"}`, err.Error()), http.StatusInternalServerError)
+			util.SendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf(`{"error": "회원가입 실패: %s"}`, err.Error()))
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		util.SendSuccessResponse(w, http.StatusCreated, "회원가입 성공", nil)
 		fmt.Fprintln(w, "회원가입 성공!")
 	}
 }
