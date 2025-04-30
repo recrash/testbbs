@@ -8,12 +8,10 @@
 		},
 		"ghcr.io/devcontainers/features/go:1": {
 			"version": "1.23"
-		},
-		"ghcr.io/itsmechlark/features/postgresql:1": {
-			"version": "13"
 		}
 	},
-	"forwardPorts": [5173, 8081],	
+	"forwardPorts": [5173, 8081],
+	"runArgs": ["--add-host=host.docker.internal:host-gateway"],	
 	"customizations": {
         "vscode": {
             "extensions": [
@@ -35,7 +33,7 @@
 				"cweijan.vscode-postgresql-client2"
             ]
         }
-    }
+    }	
 	
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
