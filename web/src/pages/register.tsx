@@ -16,13 +16,7 @@ function Register() {
         let response = null
 
         try {
-                response = await axios.post("http://localhost:8081/register", {
-                username,
-                email,
-                password,
-            }, {
-                withCredentials: true,
-            });
+            response = await axios.post("/register", { username, email, password });
             console.log("회원가입 성공!", response.data);
             alert("정상적으로 회원가입이 되었습니다.");
             navigate("/login");
