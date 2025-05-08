@@ -1,3 +1,4 @@
+CREATE USER bbsuser PASSWORD 'qwerasdf' SUPERUSER;
 CREATE DATABASE testbbs;
 
 CREATE TABLE users (
