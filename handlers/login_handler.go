@@ -53,9 +53,25 @@ func LoginHandler(database *sql.DB) http.HandlerFunc {
 			}
 		}
 
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    accessToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   60 * 15,
+		})
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   60 * 60 * 24 * 7,
+		})
+
 		responseData := map[string]interface{}{
-			"access_token":  accessToken,
-			"refresh_token": refreshToken,
 			"user": map[string]string{
 				"email":    user.Email,
 				"username": user.Username,
