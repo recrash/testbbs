@@ -17,4 +17,5 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		"message": "프로필 조회 성공!",
 		"email":   email,
 	})
+	return
 }
