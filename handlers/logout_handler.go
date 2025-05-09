@@ -82,7 +82,7 @@ func LogOutHandler(database *sql.DB) http.HandlerFunc {
 		}
 
 		util.SendSuccessResponse(w, http.StatusOK, "로그아웃 완료!", responseData)
-
+		return
 		// w.WriteHeader(http.StatusOK)
 		// json.NewEncoder(w).Encode(map[string]string{
 		// 	"message":     fmt.Sprintf("로그아웃 완료!"),

@@ -78,6 +78,6 @@ func LoginHandler(database *sql.DB) http.HandlerFunc {
 			},
 		}
 		util.SendSuccessResponse(w, http.StatusOK, "로그인 성공!", responseData)
-
+		return
 	}
 }

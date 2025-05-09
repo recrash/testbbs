@@ -64,6 +64,7 @@ func RefreshTokenHandler(database *sql.DB) http.HandlerFunc {
 		})
 
 		util.SendSuccessResponse(w, http.StatusOK, "액세스 토큰이 갱신되었습니다", nil)
+		return
 
 	}
 }
