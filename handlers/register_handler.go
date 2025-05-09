@@ -3,7 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"errors"
+	"log"
 	"net/http"
 	"testbbs/internal/db"
 	"testbbs/internal/models"
@@ -13,7 +14,6 @@ import (
 func RegisterHandler(database *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req models.RegisterRequest
-		var user *models.User
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
@@ -26,19 +26,23 @@ func RegisterHandler(database *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		user, _ = db.GetUserByEmail(database, req.Email)
-		if user.Email == req.Email {
-			util.SendErrorResponse(w, http.StatusInternalServerError, "이미 가입된 이메일주소입니다.")
+		_, err = db.GetUserByEmail(database, req.Email)
+		if err == nil {
+			util.SendErrorResponse(w, http.StatusBadRequest, "이미 가입된 이메일주소입니다.")
+			return
+		} else if errors.Is(err, sql.ErrNoRows) {
+			err = db.CreateUser(database, req.Username, req.Email, req.Password)
+			if err != nil {
+				util.SendErrorResponse(w, http.StatusInternalServerError, "회원가입에 실패했습니다. 잠시 후 다시 시도하세요.")
+				log.Println("에러 발생 상세: ", err)
+				return
+			}
+			util.SendSuccessResponse(w, http.StatusCreated, "회원가입 성공", nil)
+			return
+		} else {
+			util.SendErrorResponse(w, http.StatusInternalServerError, "사용자 조회 도중 에러가 발생하였습니다. 잠시 후 다시 시도하세요.")
+			log.Println("에러 발생 상세: ", err)
 			return
 		}
-
-		err = db.CreateUser(database, req.Username, req.Email, req.Password)
-		if err != nil {
-			util.SendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf(`{"error": "회원가입 실패: %s"}`, err.Error()))
-			return
-		}
-
-		util.SendSuccessResponse(w, http.StatusCreated, "회원가입 성공", nil)
-		fmt.Fprintln(w, "회원가입 성공!")
 	}
 }
