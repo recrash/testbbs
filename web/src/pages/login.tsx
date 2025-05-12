@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { TextField, Button, Typography, Box } from "@mui/material";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import { api,  isAxiosError } from "../api/api";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -12,14 +12,14 @@ function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await axios.post("/login", { email, password });
+            const response = await api.post("/login", { email, password });
             console.log("로그인 성공:", response.data);
 
             // 사용자 정보를 로컬 스토리지에 저장하여 페이지 새로고침 후에도 로그인 상태 유지
             localStorage.setItem("user", JSON.stringify(response.data.user));
             login(response.data.user);
         } catch (error) {
-            if(axios.isAxiosError(error) && error.response) {
+            if(isAxiosError(error) && error.response) {
                 alert(error.response.data.error);
             } else {
                 alert("알 수 없는 에러가 발생하였습니다.");

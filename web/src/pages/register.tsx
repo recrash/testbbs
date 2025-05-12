@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Box } from "@mui/material";
-import axios from "axios";
 import { useNavigate } from "react-router-dom"
+import { api, isAxiosError } from "../api/api";
 
 
 function Register() {
@@ -16,12 +16,12 @@ function Register() {
         let response = null
 
         try {
-            response = await axios.post("/register", { username, email, password });
+            response = await api.post("/register", { username, email, password });
             console.log("회원가입 성공!", response.data);
             alert("정상적으로 회원가입이 되었습니다.");
             navigate("/login");
         } catch (error) {
-            if(axios.isAxiosError(error) && error.response) {
+            if(isAxiosError(error) && error.response) {
                 alert(error.response.data.error);
             } else {
                 alert("알 수 없는 에러가 발생하였습니다.");
