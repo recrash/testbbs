@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"testbbs/handlers"
 	"testbbs/internal/auth"
 	"testbbs/internal/db"
@@ -24,6 +25,8 @@ func main() {
 
 	defer database.Close()
 
+	port := os.Getenv("SERVER_PORT")
+
 	http.Handle("/register", withCORS(handlers.RegisterHandler(database)))
 	http.Handle("/login", withCORS(handlers.LoginHandler(database)))
 	http.Handle("/profile", withCORS(auth.AuthMiddleware(handlers.ProfileHandler)))
@@ -31,7 +34,7 @@ func main() {
 	http.Handle("/logout", withCORS(handlers.LogOutHandler(database)))
 
 	fmt.Println("🚀 서버 실행 중: http://localhost:8081")
-	http.ListenAndServe(":8081", nil)
+	http.ListenAndServe(port, nil)
 }
 
 func withCORS(next http.Handler) http.Handler {
